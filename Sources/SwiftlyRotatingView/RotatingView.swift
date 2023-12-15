@@ -31,17 +31,20 @@ public struct RotatingView<Content: View>: View {
             .rotationEffect(.degrees(animate ? 360 : 0))
             .animation(.rotateSpeed(duration: speed).repeatForever(autoreverses: false), value: animate)
             .task {
-                /// Sleep for a moment to void clash with other animations
+                /// Sleep for a moment to avoid clash with other animations
                 try? await Task.sleep(until: .now + .seconds(1), clock: .continuous)
                 /// Start the animation
                 animate.toggle()
             }
             .environment(\.rotateSpeed, currentSpeed)
             .task(id: rotate) {
+                /// Sleep for a moment to avoid clash with other animations
+                try? await Task.sleep(until: .now + .seconds(1), clock: .continuous)
+                /// Build-up or slowdown the speed
                 switch rotate {
                 case true:
                     while currentSpeed < 1 {
-                        currentSpeed += (speed / 80)
+                        currentSpeed = min(1, currentSpeed + (speed / 80))
                         try? await Task.sleep(for: .seconds(0.2))
                     }
                 case false:
