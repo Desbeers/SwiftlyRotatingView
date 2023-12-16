@@ -31,10 +31,13 @@ public struct RotatingView<Content: View>: View {
             .rotationEffect(.degrees(animate ? 360 : 0))
             .animation(.rotateSpeed(duration: speed).repeatForever(autoreverses: false), value: animate)
             .task {
+                currentSpeed = 0
                 /// Sleep for a moment to avoid clash with other animations
                 try? await Task.sleep(until: .now + .seconds(1), clock: .continuous)
-                /// Start the animation
-                animate.toggle()
+                /// Start the animation if not done yet
+                if !animate {
+                    animate = true
+                }
             }
             .environment(\.rotateSpeed, currentSpeed)
             .task(id: rotate) {
