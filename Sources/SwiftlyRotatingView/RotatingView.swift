@@ -10,24 +10,24 @@ import SwiftUI
 /// A SwiftUI `View` that can rotate with a smooth start and stop
 public struct RotatingView<Content: View>: View {
     /// Public init
-    public init(speed: Double, rotate: Bool, content: @escaping () -> Content) {
+    public init(speed: Double, rotate: Bool, @ViewBuilder content: () -> Content) {
         self.speed = speed
         self.rotate = rotate
-        self.content = content
+        self.content = content()
     }
     /// The speed of the rotation
     let speed: Double
     /// Bool if the view should rotate
     let rotate: Bool
     /// The content of the `View`
-    @ViewBuilder var content: () -> Content
+    let content: Content
     /// The current rotation speed
     @State private var currentSpeed: Double = 0.0
     /// Bool to trigger the animation
     @State private var animate = false
     /// The body of the `View`
     public var body: some View {
-        content()
+        content
             .rotationEffect(.degrees(animate ? 360 : 0))
             .animation(.rotateSpeed(duration: speed).repeatForever(autoreverses: false), value: animate)
             .task {
